@@ -71,7 +71,7 @@ router.get('/', optionalAuth, async (req, res, next) => {
             total,
             page: parseInt(page),
             pages: Math.ceil(total / parseInt(limit)),
-            data: { components }
+            data: components
         });
     } catch (error) {
         next(error);

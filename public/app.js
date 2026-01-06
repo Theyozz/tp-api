@@ -3,6 +3,7 @@ let token = localStorage.getItem('token');
 let user = JSON.parse(localStorage.getItem('user'));
 let categories = [];
 let components = [];
+let allComponents = [];
 let configurations = [];
 let selectedComponents = {};
 
@@ -26,13 +27,25 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
 
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        // Reset all buttons to inactive state
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('text-indigo-400', 'border-indigo-400');
+            b.classList.add('text-gray-400', 'hover:text-indigo-400', 'hover:border-indigo-400');
+        });
+        
+        // Set the clicked button to active state
+        btn.classList.add('text-indigo-400', 'border-indigo-400');
+        btn.classList.remove('text-gray-400', 'hover:text-indigo-400', 'hover:border-indigo-400');
 
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.getElementById(`${tab}-tab`).classList.add('active');
     });
 });
+
+// Set initial active tab
+document.querySelector('.tab-btn[data-tab="configurations"]').classList.add('text-indigo-400', 'border-indigo-400');
+document.querySelector('.tab-btn[data-tab="configurations"]').classList.remove('text-gray-400', 'hover:text-indigo-400', 'hover:border-indigo-400');
+
 
 // Fonction helper pour les requêtes API
 async function apiRequest(endpoint, options = {}) {
@@ -71,6 +84,7 @@ async function loadCategories() {
 
             // Remplir le filtre des catégories
             const select = document.getElementById('category-filter');
+            select.innerHTML = '<option value="">Toutes les catégories</option>'; // Clear previous options
             categories.forEach(cat => {
                 const option = document.createElement('option');
                 option.value = cat._id;
@@ -85,7 +99,7 @@ async function loadCategories() {
     }
 }
 
-// Charger les composants
+// Charger les composants (pour l'affichage et le filtrage)
 async function loadComponents(categoryId = '') {
     try {
         const endpoint = categoryId ? `/components?category=${categoryId}` : '/components';
@@ -109,27 +123,38 @@ function displayComponents(componentsList) {
     const container = document.getElementById('components-list');
 
     if (!Array.isArray(componentsList) || componentsList.length === 0) {
-        container.innerHTML = '<p class="loading">Aucun composant trouvé</p>';
+        container.innerHTML = '<p class="text-gray-400 col-span-full text-center">Aucun composant trouvé</p>';
         return;
     }
 
-    container.innerHTML = componentsList.map(comp => `
-        <div class="card component-card">
-            <h3>${comp.name}</h3>
-            <p class="brand">${comp.brand}</p>
-            <div class="specs">
-                ${Object.entries(comp.specifications || {}).map(([key, value]) =>
-        `<div><strong>${key}:</strong> ${value}</div>`
-    ).join('')}
+    container.innerHTML = componentsList.map(comp => {
+        const bestPrice = comp.partnerPrices?.length > 0
+            ? Math.min(...comp.partnerPrices.map(p => p.price))
+            : comp.basePrice;
+
+        const isInStock = comp.partnerPrices?.some(p => p.inStock);
+
+        return `
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col transition duration-300 hover:bg-gray-700 hover:-translate-y-1">
+            <div class="flex-grow">
+                <span class="inline-block bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full mb-3">${comp.category?.name || 'N/A'}</span>
+                <h3 class="text-xl font-bold text-white">${comp.title}</h3>
+                <p class="text-sm text-gray-400 mb-4">${comp.brand}</p>
+                <div class="text-sm text-gray-300 space-y-1 mb-4">
+                    ${Object.entries(comp.specifications || {}).map(([key, value]) =>
+                `<div><span class="font-semibold text-gray-400">${key}:</span> ${value}</div>`
+            ).join('')}
+                </div>
             </div>
-            <p class="price">${comp.price} €</p>
-            ${comp.stock > 0
-            ? `<span style="color: var(--success);">✓ En stock (${comp.stock})</span>`
-            : `<span style="color: var(--danger);">✗ Rupture de stock</span>`
-        }
-            <span class="category-badge">${comp.category?.name || 'N/A'}</span>
+            <div class="flex-shrink-0 mt-auto">
+                <p class="text-3xl font-bold text-green-400 mb-2">${bestPrice.toFixed(2)} €</p>
+                ${isInStock
+                ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-green-900 text-green-300">✓ En stock</span>`
+                : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-red-900 text-red-300">✗ Rupture de stock</span>`
+            }
+            </div>
         </div>
-    `).join('');
+    `}).join('');
 }
 
 // Filtrer par catégorie
@@ -160,18 +185,22 @@ function displayConfigurations(configsList) {
     const container = document.getElementById('configurations-list');
 
     if (!Array.isArray(configsList) || configsList.length === 0) {
-        container.innerHTML = '<p class="loading">Aucune configuration. Créez-en une !</p>';
+        container.innerHTML = '<p class="text-gray-400 col-span-full text-center">Aucune configuration. Créez-en une !</p>';
         return;
     }
 
     container.innerHTML = configsList.map(config => `
-        <div class="card">
-            <h3>${config.name}</h3>
-            <p class="components-count">${config.components.length} composants</p>
-            <p class="price">${config.totalPrice} €</p>
-            <div class="card-actions">
-                <button class="btn btn-view" onclick="viewConfiguration('${config._id}')">Voir détails</button>
-                <button class="btn btn-danger" onclick="deleteConfiguration('${config._id}')">Supprimer</button>
+        <div class="bg-gray-800 rounded-lg shadow-lg p-6 flex flex-col justify-between transition duration-300 hover:bg-gray-700 hover:-translate-y-1">
+            <div>
+                <h3 class="text-2xl font-bold text-white mb-2">${config.name}</h3>
+                <p class="text-gray-400 mb-4">${config.components.length} composants</p>
+            </div>
+            <div class="mt-4">
+                <p class="text-3xl font-bold text-green-400 mb-4">${config.totalCost.toFixed(2)} €</p>
+                <div class="flex space-x-2">
+                    <button class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" onclick="viewConfiguration('${config._id}')">Voir détails</button>
+                    <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300" onclick="deleteConfiguration('${config._id}')">Supprimer</button>
+                </div>
             </div>
         </div>
     `).join('');
@@ -188,25 +217,27 @@ async function viewConfiguration(configId) {
             const modalBody = document.getElementById('modal-body');
 
             modalBody.innerHTML = `
-                <h2>${config.name}</h2>
-                <h3>Composants :</h3>
-                <div style="margin: 1rem 0;">
+                <h2 class="text-3xl font-bold text-white mb-4">${config.name}</h2>
+                <p class="text-gray-400 mb-6">${config.description || ''}</p>
+                <h3 class="text-xl font-semibold text-white mb-4">Composants :</h3>
+                <div class="space-y-3">
                     ${config.components.map(comp => `
-                        <div class="component-item">
-                            <div class="component-info">
-                                <strong>${comp.name}</strong>
-                                <div style="font-size: 0.9rem; color: var(--text-light);">${comp.brand}</div>
+                        <div class="flex justify-between items-center bg-gray-700 p-3 rounded-lg">
+                            <div>
+                                <strong class="text-white">${comp.component.title}</strong>
+                                <div class="text-sm text-gray-400">${comp.component.brand}</div>
                             </div>
-                            <div class="component-price">${comp.price} €</div>
+                            <div class="text-lg font-semibold text-gray-300">${comp.price.toFixed(2)} €</div>
                         </div>
                     `).join('')}
                 </div>
-                <div style="text-align: right; font-size: 1.5rem; font-weight: 700; color: var(--success);">
-                    Total : ${config.totalPrice} €
+                <div class="text-right text-2xl font-bold text-green-400 mt-6">
+                    Total : ${config.totalCost.toFixed(2)} €
                 </div>
             `;
 
-            modal.classList.add('show');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
     } catch (error) {
         console.error('Erreur:', error);
@@ -234,33 +265,36 @@ async function deleteConfiguration(configId) {
 
 // Fermer le modal
 document.querySelector('.close').addEventListener('click', () => {
-    document.getElementById('config-modal').classList.remove('show');
+    const modal = document.getElementById('config-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
 });
 
 window.addEventListener('click', (e) => {
     const modal = document.getElementById('config-modal');
     if (e.target === modal) {
-        modal.classList.remove('show');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
     }
 });
 
 // Charger les composants pour la sélection
 async function loadComponentSelection() {
     const container = document.getElementById('component-selection');
+    container.innerHTML = ''; // Toujours effacer pour reconstruire
 
-    categories.forEach(async (category) => {
-        const categoryComponents = components.filter(c => c.category?._id === category._id);
+    categories.forEach(category => {
+        const categoryComponents = allComponents.filter(c => c.category?._id === category._id);
 
         if (categoryComponents.length > 0) {
             const div = document.createElement('div');
-            div.className = 'component-category';
             div.innerHTML = `
-                <h4>${category.name}</h4>
-                <select class="form-group" data-category="${category._id}">
+                <label for="select-${category._id}" class="block text-sm font-medium text-gray-300 mb-2">${category.name}</label>
+                <select id="select-${category._id}" data-category="${category._id}" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     <option value="">-- Sélectionner --</option>
                     ${categoryComponents.map(comp => `
-                        <option value="${comp._id}" data-price="${comp.price}">
-                            ${comp.name} - ${comp.brand} (${comp.price}€)
+                        <option value="${comp._id}" data-price="${comp.basePrice}">
+                            ${comp.title} - ${comp.brand} (${comp.basePrice.toFixed(2)}€)
                         </option>
                     `).join('')}
                 </select>
@@ -302,10 +336,20 @@ document.getElementById('config-form').addEventListener('submit', async (e) => {
         return;
     }
 
+    // Construire la structure de données attendue par le backend
+    const componentsPayload = componentIds.map(id => {
+        const component = allComponents.find(c => c._id === id);
+        return {
+            component: id,
+            price: component.basePrice, // Utiliser le basePrice pour le moment
+            quantity: 1
+        };
+    });
+
     try {
         const data = await apiRequest('/configurations', {
             method: 'POST',
-            body: JSON.stringify({ name, components: componentIds }),
+            body: JSON.stringify({ name, components: componentsPayload }),
         });
 
         if (data.success) {
@@ -321,7 +365,7 @@ document.getElementById('config-form').addEventListener('submit', async (e) => {
                 document.querySelector('[data-tab="configurations"]').click();
             }, 2000);
         } else {
-            showError('config-error', data.message);
+            showError('config-error', data.message || 'Une erreur est survenue');
         }
     } catch (error) {
         showError('config-error', 'Erreur lors de la création');
@@ -332,21 +376,32 @@ document.getElementById('config-form').addEventListener('submit', async (e) => {
 function showError(id, message) {
     const div = document.getElementById(id);
     div.textContent = message;
-    div.classList.add('show');
-    setTimeout(() => div.classList.remove('show'), 5000);
+    div.classList.remove('hidden');
+    setTimeout(() => div.classList.add('hidden'), 5000);
 }
 
 function showSuccess(id, message) {
     const div = document.getElementById(id);
     div.textContent = message;
-    div.classList.add('show');
-    setTimeout(() => div.classList.remove('show'), 5000);
+    div.classList.remove('hidden');
+    setTimeout(() => div.classList.add('hidden'), 5000);
 }
 
 // Initialisation
 (async function init() {
     await loadCategories();
-    await loadComponents();
+
+    // Charger tous les composants une seule fois pour la sélection
+    const data = await apiRequest('/components');
+    if (data && data.success && Array.isArray(data.data)) {
+        allComponents = data.data;
+        // Afficher la liste initiale non filtrée dans l'onglet Composants
+        displayComponents(allComponents); 
+    }
+
     await loadConfigurations();
     await loadComponentSelection();
+
+    // Ajouter un écouteur d'événement pour reconstruire les sélections si on clique sur l'onglet
+    document.querySelector('[data-tab="new-config"]').addEventListener('click', loadComponentSelection);
 })();

@@ -5,9 +5,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const tab = btn.dataset.tab;
 
-        // Mettre à jour les boutons
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        // Reset all buttons to inactive state
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('text-indigo-400', 'border-indigo-400');
+            b.classList.add('text-gray-400', 'hover:text-indigo-400', 'hover:border-indigo-400');
+        });
+
+        // Set the clicked button to active state
+        btn.classList.add('text-indigo-400', 'border-indigo-400');
+        btn.classList.remove('text-gray-400', 'hover:text-indigo-400', 'hover:border-indigo-400');
 
         // Mettre à jour les formulaires
         document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));

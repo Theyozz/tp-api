@@ -1,87 +1,112 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurateur PC - Dashboard</title>
-    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
 </head>
-<body>
-    <nav class="navbar">
-        <div class="nav-content">
-            <h1>🖥️ Configurateur PC</h1>
-            <div class="nav-right">
-                <span id="user-name"></span>
-                <button id="logout-btn" class="btn btn-secondary">Déconnexion</button>
+<body class="bg-gray-900 text-gray-200 font-sans">
+
+    <nav class="bg-gray-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0 text-white text-2xl font-bold">
+                    🖥️ Configurateur PC
+                </div>
+                <div class="flex items-center">
+                    <span id="user-name" class="text-gray-400 mr-4"></span>
+                    <button id="logout-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                        Déconnexion
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container">
-        <div class="tabs">
-            <button class="tab-btn active" data-tab="configurations">Mes Configurations</button>
-            <button class="tab-btn" data-tab="components">Composants</button>
-            <button class="tab-btn" data-tab="new-config">Nouvelle Configuration</button>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <div class="border-b border-gray-700 mb-8">
+            <nav class="flex -mb-px space-x-6" aria-label="Tabs">
+                <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-indigo-400 hover:border-indigo-400" data-tab="configurations">
+                    Mes Configurations
+                </button>
+                <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-indigo-400 hover:border-indigo-400" data-tab="components">
+                    Composants
+                </button>
+                <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-400 hover:text-indigo-400 hover:border-indigo-400" data-tab="new-config">
+                    Nouvelle Configuration
+                </button>
+            </nav>
         </div>
 
         <!-- Onglet Configurations -->
-        <div id="configurations-tab" class="tab-content active">
-            <div class="section-header">
-                <h2>Mes Configurations</h2>
+        <div id="configurations-tab" class="tab-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">Mes Configurations</h2>
             </div>
-            <div id="configurations-list" class="grid">
-                <div class="loading">Chargement...</div>
+            <div id="configurations-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Les cartes de configuration seront injectées ici -->
             </div>
         </div>
 
         <!-- Onglet Composants -->
         <div id="components-tab" class="tab-content">
-            <div class="section-header">
-                <h2>Composants Disponibles</h2>
-                <select id="category-filter" class="filter-select">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">Composants Disponibles</h2>
+                <select id="category-filter" class="bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
                     <option value="">Toutes les catégories</option>
                 </select>
             </div>
-            <div id="components-list" class="grid">
-                <div class="loading">Chargement...</div>
+            <div id="components-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Les cartes de composants seront injectées ici -->
             </div>
         </div>
 
         <!-- Onglet Nouvelle Configuration -->
         <div id="new-config-tab" class="tab-content">
-            <div class="section-header">
-                <h2>Créer une Configuration</h2>
-            </div>
-            <form id="config-form" class="config-form">
-                <div class="form-group">
-                    <label for="config-name">Nom de la configuration</label>
-                    <input type="text" id="config-name" required placeholder="Ma config gaming">
-                </div>
-                
-                <h3>Sélectionner les composants</h3>
-                <div id="component-selection">
-                    <!-- Généré dynamiquement -->
-                </div>
-
-                <div class="form-group">
-                    <label>Budget total</label>
-                    <div class="budget-display">
-                        <span id="total-price">0</span> €
+            <h2 class="text-3xl font-bold text-white mb-6">Créer une Configuration</h2>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg max-w-3xl mx-auto">
+                <form id="config-form">
+                    <div class="mb-6">
+                        <label for="config-name" class="block text-sm font-medium text-gray-300 mb-2">Nom de la configuration</label>
+                        <input type="text" id="config-name" required placeholder="Ma config gaming ultime" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none">
                     </div>
-                </div>
+                    
+                    <h3 class="text-xl font-semibold text-white mb-4">Sélectionner les composants</h3>
+                    <div id="component-selection" class="space-y-4 mb-6">
+                        <!-- Généré dynamiquement -->
+                    </div>
 
-                <button type="submit" class="btn btn-primary">Créer la configuration</button>
-                <div id="config-error" class="error-message"></div>
-                <div id="config-success" class="success-message"></div>
-            </form>
+                    <div class="mb-6">
+                        <label class="block text-lg font-medium text-gray-300">Budget total</label>
+                        <div class="bg-gray-900 rounded-lg p-4 text-center">
+                            <span id="total-price" class="text-4xl font-bold text-green-400">0.00</span>
+                            <span class="text-xl text-gray-400">€</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 text-lg">
+                        Créer la configuration
+                    </button>
+                    <div id="config-error" class="mt-4 text-red-400 bg-red-900/50 p-3 rounded-lg text-center hidden"></div>
+                    <div id="config-success" class="mt-4 text-green-400 bg-green-900/50 p-3 rounded-lg text-center hidden"></div>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Modal pour détails configuration -->
-    <div id="config-modal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <div id="modal-body"></div>
+    <div id="config-modal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden items-center justify-center">
+        <div class="bg-gray-800 rounded-lg shadow-xl p-8 max-w-2xl w-full m-4 relative">
+            <button class="close absolute top-4 right-4 text-gray-400 hover:text-white text-2xl">&times;</button>
+            <div id="modal-body">
+                <!-- Contenu du modal injecté ici -->
+            </div>
         </div>
     </div>
 

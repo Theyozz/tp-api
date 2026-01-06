@@ -34,7 +34,7 @@ router.get('/', authenticate, async (req, res, next) => {
         res.json({
             success: true,
             count: configurations.length,
-            data: { configurations }
+            data: configurations
         });
     } catch (error) {
         next(error);
@@ -81,7 +81,7 @@ router.get('/all', authenticate, isAdmin, async (req, res, next) => {
             total,
             page: parseInt(page),
             pages: Math.ceil(total / parseInt(limit)),
-            data: { configurations }
+            data: configurations
         });
     } catch (error) {
         next(error);
@@ -133,7 +133,7 @@ router.get('/:id', authenticate, async (req, res, next) => {
 
         res.json({
             success: true,
-            data: { configuration }
+            data: configuration
         });
     } catch (error) {
         next(error);
