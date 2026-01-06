@@ -22,14 +22,17 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Servir les fichiers statiques (front-end)
+app.use(express.static('public'));
+
 // Documentation Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     customCss: '.swagger-ui .topbar { display: none }',
     customSiteTitle: 'ConfigurateurPC API Documentation'
 }));
 
-// Routes
-app.get('/', (req, res) => {
+// Route API info
+app.get('/api', (req, res) => {
     res.json({
         success: true,
         message: 'Bienvenue sur l\'API ConfigurateurPC',

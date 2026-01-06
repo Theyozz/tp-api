@@ -43,14 +43,14 @@ const seedData = async () => {
 
         // Créer des catégories
         const categories = await Category.insertMany([
-            { name: 'Processeur (CPU)', description: 'Unité centrale de traitement', icon: '🔲' },
-            { name: 'Carte graphique (GPU)', description: 'Carte graphique pour le rendu visuel', icon: '🎮' },
-            { name: 'Mémoire RAM', description: 'Mémoire vive', icon: '💾' },
-            { name: 'Stockage', description: 'Disques SSD et HDD', icon: '💿' },
-            { name: 'Carte mère', description: 'Carte mère', icon: '🔌' },
-            { name: 'Alimentation', description: 'Bloc d\'alimentation', icon: '⚡' },
-            { name: 'Boîtier', description: 'Boîtier PC', icon: '📦' },
-            { name: 'Refroidissement', description: 'Ventilateurs et watercooling', icon: '❄️' }
+            { name: 'Processeur (CPU)', slug: 'processeur-cpu', description: 'Unité centrale de traitement', icon: '🔲' },
+            { name: 'Carte graphique (GPU)', slug: 'carte-graphique-gpu', description: 'Carte graphique pour le rendu visuel', icon: '🎮' },
+            { name: 'Mémoire RAM', slug: 'memoire-ram', description: 'Mémoire vive', icon: '💾' },
+            { name: 'Stockage', slug: 'stockage', description: 'Disques SSD et HDD', icon: '💿' },
+            { name: 'Carte mère', slug: 'carte-mere', description: 'Carte mère', icon: '🔌' },
+            { name: 'Alimentation', slug: 'alimentation', description: 'Bloc d\'alimentation', icon: '⚡' },
+            { name: 'Boîtier', slug: 'boitier', description: 'Boîtier PC', icon: '📦' },
+            { name: 'Refroidissement', slug: 'refroidissement', description: 'Ventilateurs et watercooling', icon: '❄️' }
         ]);
         console.log('✅ Catégories créées');
 

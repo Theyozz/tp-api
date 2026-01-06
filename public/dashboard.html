@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurateur PC - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <h1>🖥️ Configurateur PC</h1>
+            <div class="nav-right">
+                <span id="user-name"></span>
+                <button id="logout-btn" class="btn btn-secondary">Déconnexion</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="configurations">Mes Configurations</button>
+            <button class="tab-btn" data-tab="components">Composants</button>
+            <button class="tab-btn" data-tab="new-config">Nouvelle Configuration</button>
+        </div>
+
+        <!-- Onglet Configurations -->
+        <div id="configurations-tab" class="tab-content active">
+            <div class="section-header">
+                <h2>Mes Configurations</h2>
+            </div>
+            <div id="configurations-list" class="grid">
+                <div class="loading">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Onglet Composants -->
+        <div id="components-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Composants Disponibles</h2>
+                <select id="category-filter" class="filter-select">
+                    <option value="">Toutes les catégories</option>
+                </select>
+            </div>
+            <div id="components-list" class="grid">
+                <div class="loading">Chargement...</div>
+            </div>
+        </div>
+
+        <!-- Onglet Nouvelle Configuration -->
+        <div id="new-config-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Créer une Configuration</h2>
+            </div>
+            <form id="config-form" class="config-form">
+                <div class="form-group">
+                    <label for="config-name">Nom de la configuration</label>
+                    <input type="text" id="config-name" required placeholder="Ma config gaming">
+                </div>
+                
+                <h3>Sélectionner les composants</h3>
+                <div id="component-selection">
+                    <!-- Généré dynamiquement -->
+                </div>
+
+                <div class="form-group">
+                    <label>Budget total</label>
+                    <div class="budget-display">
+                        <span id="total-price">0</span> €
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Créer la configuration</button>
+                <div id="config-error" class="error-message"></div>
+                <div id="config-success" class="success-message"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal pour détails configuration -->
+    <div id="config-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

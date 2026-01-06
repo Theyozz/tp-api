@@ -55,11 +55,10 @@ const configurationSchema = new mongoose.Schema({
 });
 
 // Calculer le coût total avant de sauvegarder
-configurationSchema.pre('save', function (next) {
+configurationSchema.pre('save', function () {
     this.totalCost = this.components.reduce((total, item) => {
         return total + (item.price * item.quantity);
     }, 0);
-    next();
 });
 
 // Index pour améliorer les performances
